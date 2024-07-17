@@ -3,7 +3,7 @@
 # Variables
 TEMPLATE_FILE="/Users/mac/downloads/python-rekognition/sam-template.yml"
 PACKAGED_TEMPLATE_FILE="packaged-template.yml"
-S3_BUCKET="aws-sam-cli-managed-default-samclisourcebucket-sqpvz37f4kqg"
+S3_BUCKET="aws-sam-cli-managed-default-samclisourcebucket"
 STACK_NAME="sam-face-comparison"
 
 # Build the application
