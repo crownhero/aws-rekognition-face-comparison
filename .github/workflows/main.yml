@@ -1,0 +1,44 @@
+name: Deploy Face Comparison Service 
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.12' 
+
+    - name: Install AWS SAM CLI
+      run: |
+        pip install aws-sam-cli
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::83456789876544:role/face-comparison-service
+        aws-region: eu-west-2
+
+    - name: Make deployment script executable
+      run: chmod +x auto-deploy.sh
+
+    - name: Run deployment script
+      run: ./auto-deploy.sh
+      env:
+        TEMPLATE_FILE: "sam-template.yml" 
+        PACKAGED_TEMPLATE_FILE: "packaged-template.yml"
+        S3_BUCKET: "aws-sam-cli-managed-default-samclisourcebucket"
+        STACK_NAME: "sam-face-comparison"
