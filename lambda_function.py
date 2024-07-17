@@ -10,8 +10,8 @@ def lambda_handler(event, context):
     target_image_key = event['targetImageKey']
 
     # Bucket names
-    source_bucket = 'waverlite-kyc-documents'
-    target_bucket = 'waverlite-kyc-selfies'
+    source_bucket = 'uyu-kyc-documents'
+    target_bucket = 'uyu-kyc-selfies'
 
     try:
         # Get source image from S3
