@@ -11,8 +11,8 @@ Resources:
       Timeout: 30
       Environment:
         Variables:
-          SOURCE_BUCKET: waverlite-kyc-documents
-          TARGET_BUCKET: waverlite-kyc-selfies
+          SOURCE_BUCKET: uyu-kyc-documents
+          TARGET_BUCKET: uyukyc-selfies
       Policies:
         - Version: '2012-10-17'
           Statement:
@@ -22,8 +22,8 @@ Resources:
             - Effect: 'Allow'
               Action: 's3:GetObject'
               Resource:
-                - 'arn:aws:s3:::waverlite-kyc-documents/*'
-                - 'arn:aws:s3:::waverlite-kyc-selfies/*'
+                - 'arn:aws:s3:::uyu-kyc-documents/*'
+                - 'arn:aws:s3:::uyu-kyc-selfies/*'
 
   CompareFacesApi:
     Type: 'AWS::Serverless::Api'
