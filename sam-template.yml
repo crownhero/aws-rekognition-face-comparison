@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+
+Resources:
+  CompareFacesFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.12
+      CodeUri: .
+      Timeout: 30
+      Environment:
+        Variables:
+          SOURCE_BUCKET: waverlite-kyc-documents
+          TARGET_BUCKET: waverlite-kyc-selfies
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: 'Allow'
+              Action: 'rekognition:CompareFaces'
+              Resource: '*'
+            - Effect: 'Allow'
+              Action: 's3:GetObject'
+              Resource:
+                - 'arn:aws:s3:::waverlite-kyc-documents/*'
+                - 'arn:aws:s3:::waverlite-kyc-selfies/*'
+
+  CompareFacesApi:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      StageName: 'prod'
+      DefinitionBody:
+        openapi: '3.0.1'
+        info:
+          title: 'Compare Faces API'
+          version: '1.0'
+        paths:
+          /compare:
+            post:
+              responses:
+                '200':
+                  description: '200 response from Lambda function'
+                  content:
+                    application/json:
+                      schema:
+                        type: object
+                        properties:
+                          match:
+                            type: boolean
+                          similarity:
+                            type: number
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${CompareFacesFunction.Arn}/invocations
+                integrationHttpMethod: POST
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: '{"sourceImageKey": "$input.path(''$.sourceImageKey'')", "targetImageKey": "$input.path(''$.targetImageKey'')"}'
+                responses:
+                  default:
+                    statusCode: '200'
+
+  CompareFacesFunctionPermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      FunctionName: !GetAtt CompareFacesFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: 'apigateway.amazonaws.com'
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${CompareFacesApi}/*/*
+
+Outputs:
+  CompareFacesApiUrl:
+    Value: !Sub 'https://${CompareFacesApi}.execute-api.${AWS::Region}.amazonaws.com/prod/compare'
