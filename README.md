@@ -1,0 +1,1 @@
+# aws-rekognition-face-comparison
